@@ -20,6 +20,7 @@ class Widget:
     ctkObject = None
     element = None  # CTkObject
     children = {}
+    _props = {}
 
     def __init__(self, ctkObject, name: str = str(uuid4()), creationArgs: dict = None, addedChildren: list["Widget"] = None, **properties) -> "Widget":
         """Parses properties then makes the gui
@@ -34,15 +35,15 @@ class Widget:
             Widget: An object to ease gui creation
         """
         self.name = name
-        self.ctkObject: ct.CTkButton = ObjParser(ctkObject)
+        self.ctkObject = ObjParser(ctkObject)
         self._props = Parser(properties)
 
-        if creationArgs:
+        if creationArgs is not None:
             self._props.creation = creationArgs
 
-        if addedChildren:
-            for i in addedChildren:
-                console.print("Hells:", i)
+        if addedChildren is not None:
+            for _wig in addedChildren:
+                self.addChild(_wig)
 
     def place_configure(self, *args, **kwargs):
         if self.element:
@@ -52,7 +53,7 @@ class Widget:
         """Set the parent of the widget
 
         Args:
-            _widget (widget, CTkObject): The widget or customtkinter widget.
+            _widget (Widget, CTkObject): The widget or customtkinter widget.
         """
         if isinstance(_widget, Widget):
             if _widget.element:
@@ -64,9 +65,13 @@ class Widget:
         """Returns the child if exists"""
         return self.children.get(name)
 
-    def addChild(self, shitArgument: any):
+    def addChild(self, _widget: any):
         """Adds a child to the widget"""
-        pass
+        console.log("addChild#1", _widget.name, _widget.children,
+                    _widget._props.creation["master"], self.name)
+        self.children[_widget.name] = {"name": _widget.name}
+        console.log("addChild#2", _widget.name, _widget.children,
+                    _widget._props.creation["master"], self.name)
 
     def removeChild(self, name: str):
         """Removes a child"""
@@ -100,6 +105,27 @@ class Widget:
     def __repr__(self) -> str:
         return f"Widget(name={self.name}, children={self.children})"
 
+
+if __name__ == "__main__":
+    w = ct.CTk()
+
+    button = None
+
+    def cl():
+        print("Hello world")
+
+    subbtn = Widget(ct.CTkButton, name="subBtn", master=w, text="CLICK", command=cl, relx=0.3,
+                    rely=0.3, relwidth=0.3, relheight=0.4)
+
+    button = Widget(ct.CTkButton, name="MainButton", addedChildren=[
+        subbtn
+    ], master=w, text="string", relx=0.1,
+        rely=0.1, relwidth=0.8, relheight=0.8, command=lambda: print("Hello")).mount()
+
+    # ,
+    # widget(ct.CTkButton, name="sbbutton", master=w, text="CLICK", command=cl, relx=0.45,
+    #    rely=0.3, relwidth=0.3, relheight=0.4)
+    w.mainloop()
 
 # Builder.createWidget("Frame", {"master": window, "relwidth": 0.5, "relheight": 0.5}, [
 #     Builder.createWidget(
