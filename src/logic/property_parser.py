@@ -2,7 +2,7 @@ import customtkinter as ct
 from argparse import Namespace
 
 creation_keys = ["master", "text", "placeholder_text",
-                 "command", "text_font", "width", "height"]
+                 "command", "text_font", "width", "height", "fg_color"]
 place_keys = ["relx", "rely", "relwidth", "relheight", "anchor", "x", "y"]
 
 CTkObjects = {

@@ -16,11 +16,6 @@ class Widget:
         removeChild (name: str): Name of the child.
         place_configure (*args, **kwargs): Configure the placment of the gui element.
     """
-    name = ""
-    ctkObject = None
-    element = None  # CTkObject
-    children = {}
-    _props = {}
 
     def __init__(self, ctkObject, name: str = str(uuid4()), creationArgs: dict = None, addedChildren: list["Widget"] = None, **properties) -> "Widget":
         """Parses properties then makes the gui
@@ -37,6 +32,9 @@ class Widget:
         self.name = name
         self.ctkObject = ObjParser(ctkObject)
         self._props = Parser(properties)
+
+        self.element = None  # CTkObject
+        self.children = {}
 
         if creationArgs is not None:
             self._props.creation = creationArgs
@@ -67,13 +65,6 @@ class Widget:
 
     def addChild(self, _widget: any):
         """Adds a child to the widget"""
-        console.log("addChild#1", _widget.name, _widget.children,
-                    _widget._props.creation["master"], self.name)
-        self.children[_widget.name] = {"name": _widget.name}
-        console.log("addChild#2", _widget.name, _widget.children,
-                    _widget._props.creation["master"], self.name)
-
-        # code that is supposed to work just I get recursion of children
         self.children[_widget.name] = _widget
 
     def removeChild(self, name: str):
@@ -86,19 +77,15 @@ class Widget:
     def mount(self):
         """Creates every child under this widget.
         Mounting while the gu element is created with redraw it"""
-        console.print("WidgetName:", self.name)
-        console.print("WidgetElement:", self.element)
         if self.element:
             self.unmount()
 
-        console.print("WidgetProperties:", self._props.creation)
         self.element = self.ctkObject(**self._props.creation)
         self.element.place_configure(**self._props.place)
 
-        # print("Children:", self.children)
-        console.print("WidgetChildren:", self.children)
         for name, widge in self.children.items():
-            console.print(name, widge)
+            widge.setparent(self.element)
+            widge.mount()
 
     def unmount(self):
         """Deletes this gui element"""
@@ -112,19 +99,17 @@ class Widget:
 if __name__ == "__main__":
     w = ct.CTk()
 
-    button = None
-
-    def cl():
-        print("Hello world")
-
-    subbtn = Widget(ct.CTkButton, name="subBtn", master=w, text="CLICK", command=cl, relx=0.3,
-                    rely=0.3, relwidth=0.3, relheight=0.4)
-
     button = Widget(ct.CTkButton, name="MainButton", addedChildren=[
-        subbtn
+        Widget(ct.CTkButton, addedChildren=[
+            Widget(ct.CTkButton, name="subBtn", master=w, fg_color="#eab7ff", text="CLICK", relx=0.3,
+                    rely=0.3, relwidth=0.3, relheight=0.4)],
+               name="subature", master=w, fg_color="#55aa94", text="CLICK", relx=0.3,
+               rely=0.3, relwidth=0.3, relheight=0.4)
     ], master=w, text="string", relx=0.1,
-        rely=0.1, relwidth=0.8, relheight=0.8, command=lambda: print("Hello")).mount()
+        rely=0.1, relwidth=0.8, relheight=0.8).mount()
 
+    console.print(button)
+    # console.print(button.child("subBtn"))
     # ,
     # widget(ct.CTkButton, name="sbbutton", master=w, text="CLICK", command=cl, relx=0.45,
     #    rely=0.3, relwidth=0.3, relheight=0.4)
