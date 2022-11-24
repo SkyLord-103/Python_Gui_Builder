@@ -73,6 +73,9 @@ class Widget:
         console.log("addChild#2", _widget.name, _widget.children,
                     _widget._props.creation["master"], self.name)
 
+        # code that is supposed to work just I get recursion of children
+        self.children[_widget.name] = _widget
+
     def removeChild(self, name: str):
         """Removes a child"""
 
