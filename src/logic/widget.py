@@ -1,3 +1,4 @@
+from typing import Optional
 from property_parser import Parser, ObjParser
 import customtkinter as ct
 from uuid import uuid4
@@ -17,21 +18,22 @@ class Widget:
         place_configure (*args, **kwargs): Configure the placment of the gui element.
     """
 
-    def __init__(self, ctkObject, name: str = str(uuid4()), creationArgs: dict = None, addedChildren: list["Widget"] = None, **properties) -> "Widget":
+    def __init__(self, ctkObject, name: str = str(uuid4()), properties=None, creationArgs: Optional[dict] = None, children: list["Widget"] = None) -> "Widget":
         """Parses properties then makes the gui
 
         Args:
             ctkObject (any): Any customtkinter object.
             name (str, optional): The name to be put into a child list
+            properties (namespace(creation, place)): The parsed properties for the widget
+            creationArgs (dict, optional): Options for the gui elment creation to override properties. Defaults to None.
             children (dict[str, Widget], optional): Children to belong to this Widget. Defaults to None.
-            creationArgs (dict, optional): Options for the gui elment creation to override **properties. Defaults to None.
 
         Returns:
             Widget: An object to ease gui creation
         """
         self.name = name
         self.ctkObject = ObjParser(ctkObject)
-        self._props = Parser(properties)
+        self._props = properties
 
         self.element = None  # CTkObject
         self.children = {}
@@ -39,9 +41,14 @@ class Widget:
         if creationArgs is not None:
             self._props.creation = creationArgs
 
-        if addedChildren is not None:
-            for _wig in addedChildren:
+        if children is not None:
+            for _wig in children:
                 self.addChild(_wig)
+
+    @classmethod
+    def parse(cls, **properties):
+        """Returns parsed properties"""
+        return Parser(properties)
 
     def place_configure(self, *args, **kwargs):
         if self.element:
@@ -76,14 +83,14 @@ class Widget:
 
     def mount(self):
         """Creates every child under this widget.
-        Mounting while the gu element is created with redraw it"""
+        Mounting while the gui element is created will redraw it"""
         if self.element:
             self.unmount()
 
         self.element = self.ctkObject(**self._props.creation)
         self.element.place_configure(**self._props.place)
 
-        for name, widge in self.children.items():
+        for widge in self.children.values():
             widge.setparent(self.element)
             widge.mount()
 
@@ -98,15 +105,34 @@ class Widget:
 
 if __name__ == "__main__":
     w = ct.CTk()
+    button = None
 
-    button = Widget(ct.CTkButton, name="MainButton", addedChildren=[
-        Widget(ct.CTkButton, addedChildren=[
-            Widget(ct.CTkButton, name="subBtn", master=w, fg_color="#eab7ff", text="CLICK", relx=0.3,
-                    rely=0.3, relwidth=0.3, relheight=0.4)],
-               name="subature", master=w, fg_color="#55aa94", text="CLICK", relx=0.3,
-               rely=0.3, relwidth=0.3, relheight=0.4)
-    ], master=w, text="string", relx=0.1,
-        rely=0.1, relwidth=0.8, relheight=0.8).mount()
+    def cl():
+        button.removeChild("addChild")
+
+    button = Widget(ct.CTkButton, name="MainButton",
+                    properties=Widget.parse(
+                        master=w, text="string", relx=0.1,
+                        rely=0.1, relwidth=0.8, relheight=0.8, command=cl
+                    ), children=[
+                        Widget(ct.CTkButton, name="subature",
+                               properties=Widget.parse(
+                                   master=w, fg_color="#55aa94", text="CLICK",
+                                   relx=0.3, rely=0.3, relwidth=0.3, relheight=0.4
+                               ), children=[
+                                   Widget(ct.CTkButton, name="subBtn",
+                                          properties=Widget.parse(
+                                              master=w, fg_color="#eab7ff", text="CLICK",
+                                              relx=0.3, rely=0.3, relwidth=0.3, relheight=0.4
+                                          ))
+                               ])
+                    ])
+    button.addChild(Widget(ct.CTkButton, name="addChild",
+                           properties=Widget.parse(
+                                              master=w, fg_color="#eab7ff", text="CLICK",
+                                              relx=0.3, rely=0.3, relwidth=0.3, relheight=0.4
+                           )))
+    button.mount()
 
     console.print(button)
     # console.print(button.child("subBtn"))
