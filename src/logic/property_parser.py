@@ -1,22 +1,44 @@
-import customtkinter as ct
+import customtkinter as ctk
 from argparse import Namespace
 
-creation_keys = ["master", "text", "placeholder_text",
-                 "command", "text_font", "width", "height", "fg_color"]
-place_keys = ["relx", "rely", "relwidth", "relheight", "anchor", "x", "y"]
+widget_creation_keys = ["master", "text", "placeholder_text",
+                        "command", "text_font", "width", "height", "fg_color"]
+widget_place_keys = ["relx", "rely",
+                     "relwidth", "relheight", "anchor", "x", "y"]
+
+window_ctk_keys = []
+window_user_keys = ["title", "size", "position", "anchor"]
+
 
 CTkObjects = {
-    "CTkFrame": ct.CTkFrame,
-    "CTkLabel": ct.CTkLabel,
-    "CTkButton": ct.CTkButton,
-    "CTkEntry": ct.CTkEntry,
-    "CTkCheckBox": ct.CTkCheckBox,
+    "CTkProgressBar": ctk.CTkProgressBar,
+    "CTkRadioButton": ctk.CTkRadioButton,
+    "CTkOptionMenu": ctk.CTkOptionMenu,
+    "CTkCheckBox": ctk.CTkCheckBox,
+    "CTkComboBox": ctk.CTkComboBox,
+    "CTkTextbox": ctk.CTkTextbox,
+    "CTkButton": ctk.CTkButton,
+    "CTkCanvas": ctk.CTkCanvas,
+    "CTkSlider": ctk.CTkSlider,
+    "CTkSwitch": ctk.CTkSwitch,
+    "CTkFrame": ctk.CTkFrame,
+    "CTkLabel": ctk.CTkLabel,
+    "CTkEntry": ctk.CTkEntry
 }
 
 
-def Parser(pureProps) -> Namespace:
-    return Namespace(creation={k: v for k, v in pureProps.items() if k in creation_keys},
-                     place={k: v for k, v in pureProps.items() if k in place_keys})
+def _loop(d1, d2):
+    return {k: v for k, v in d1.items() if k in d2}
+
+
+def WindowParser(pureProps) -> Namespace:
+    return Namespace(ctk=_loop(pureProps, window_ctk_keys),
+                     user=_loop(pureProps, window_user_keys))
+
+
+def WidgetParser(pureProps) -> Namespace:
+    return Namespace(creation=_loop(pureProps, widget_creation_keys),
+                     place=_loop(pureProps, widget_place_keys))
 
 
 def ObjParser(obj: any) -> any:
