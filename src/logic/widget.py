@@ -18,7 +18,7 @@ class Widget:
         place_configure (*args, **kwargs): Configure the placment of the gui element.
     """
 
-    def __init__(self, ctkObject, name: str = str(uuid4()), properties=None, creationArgs: Optional[dict] = None, children: list["Widget"] = None) -> "Widget":
+    def __init__(self, ctkObject, name: str = None, properties=None, creationArgs: Optional[dict] = None, children: list["Widget"] = None) -> "Widget":
         """Parses properties then makes the gui
 
         Args:
@@ -31,8 +31,10 @@ class Widget:
         Returns:
             Widget: An object to ease gui creation
         """
-        self.name = name
+        self.name = name or str(uuid4())
         self.ctkObject = ObjParser(ctkObject)
+
+        self.afterCreate = properties.creation.pop("afterCreate", None)
         self._props = properties
 
         self.element = None  # CTkObject
@@ -74,7 +76,11 @@ class Widget:
 
     def addChild(self, _widget: any):
         """Adds a child to the widget"""
-        self.children[_widget.name] = _widget
+        if isinstance(_widget, Widget):
+            self.children[_widget.name] = _widget
+        if isinstance(_widget, list):
+            for widge in _widget:
+                self.children[widge.name] = widge
 
     def removeChild(self, name: str):
         """Removes a child"""
@@ -91,6 +97,9 @@ class Widget:
 
         self.element = self.ctkObject(**self._props.creation)
         self.element.place_configure(**self._props.place)
+
+        if self.afterCreate is not None:
+            self.afterCreate(self, self.element)
 
         for widge in self.children.values():
             widge.setparent(self.element)
@@ -111,7 +120,6 @@ if __name__ == "__main__":
 
     def cl():
         w = button.child('addChild')
-        print(w)
     button = Widget(ct.CTkButton, "MainButton",
                     Widget.parse(
                         master=w, text="string", relx=0.1,

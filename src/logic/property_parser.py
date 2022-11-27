@@ -1,8 +1,12 @@
 import customtkinter as ctk
 from argparse import Namespace
 
-widget_creation_keys = ["master", "text", "placeholder_text",
-                        "command", "text_font", "width", "height", "fg_color"]
+widget_creation_keys = [
+    "master", "text", "placeholder_text", "command",
+    "text_font", "text_color", "hover_color", "border_width",
+    "width", "height", "fg_color", "afterCreate",
+    "show"
+]
 widget_place_keys = ["relx", "rely",
                      "relwidth", "relheight", "anchor", "x", "y"]
 
