@@ -4,7 +4,7 @@ from argparse import Namespace
 widget_creation_keys = [
     "master", "text", "placeholder_text", "command",
     "text_font", "text_color", "hover_color", "border_width",
-    "width", "height", "fg_color", "afterCreate",
+    "width", "height", "fg_color", "afterCreate", "justify", "compound"
     "show"
 ]
 widget_place_keys = ["relx", "rely",

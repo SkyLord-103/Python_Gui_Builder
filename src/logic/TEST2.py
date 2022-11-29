@@ -21,7 +21,7 @@ _frame = Widget('CTkFrame', properties=Widget.parse(
     anchor=ctk.CENTER, relx=0.5, rely=0.5, relwidth=0.95, relheight=0.95),
     children=[
         Widget('CTkLabel', properties=Widget.parse(
-            afterCreate=setLeft, text="Create User", text_font=f"{ThemeManager.theme['text']['font']} 18 bold",
+            justify='w', text="Create User", text_font=f"{ThemeManager.theme['text']['font']} 18 bold",
             anchor=tk.N, relx=0.5, rely=0.01, relwidth=0.95, relheight=0.1)),
         Widget('CTkLabel', properties=Widget.parse(
             afterCreate=setLeft, text="Username", text_font=f"{ThemeManager.theme['text']['font']} 10",
@@ -32,10 +32,6 @@ _frame = Widget('CTkFrame', properties=Widget.parse(
         Widget('CTkLabel', properties=Widget.parse(
             afterCreate=setLeft, text="Confirm", text_font=f"{ThemeManager.theme['text']['font']} 10",
             anchor=tk.N, relx=0.5, rely=0.53, relwidth=0.95, relheight=0.1)),
-        Widget("CTkButton", properties=Widget.parse(
-            text="Have an account?", text_font=f"{ThemeManager.theme['text']['font']} 10", text_color=ThemeManager.theme['color']['text'],
-            fg_color=ThemeManager.theme['color']['frame_low'], hover_color=ThemeManager.theme['color']['frame_low'], border_width=0,
-            anchor=tk.N, relx=0.395, rely=0.89, relwidth=0.4, relheight=0.1))
 ])
 
 # ========= entries =========#
@@ -55,13 +51,25 @@ create_button = Widget('CTkButton', properties=Widget.parse(
     text="Create", text_font=f"{ThemeManager.theme['text']['font']}", command=lambda: print("Creating beyatch"),
     anchor=tk.N, relx=0.5, rely=0.78, relwidth=0.95, relheight=0.1))
 
+_sub_frame = Widget('CTkFrame', properties=Widget.parse(
+    fg_color=ThemeManager.theme['color']['frame_low'],
+    anchor=tk.CENTER, relx=0.5, rely=0.92, relwidth=0.55, relheight=0.07
+), children=[
+    Widget("CTkButton", properties=Widget.parse(
+        text="Have an account?", text_font=f"{ThemeManager.theme['text']['font']} 10", text_color=ThemeManager.theme['color']['text'],
+        fg_color=ThemeManager.theme['color']['frame_low'], hover_color=ThemeManager.theme['color']['frame_low'], border_width=0,
+        relx=0, rely=0, relwidth=0.65, relheight=1))
+])
+
 login_button = Widget('CTkButton', properties=Widget.parse(
     text="Login", text_font=f"{ThemeManager.theme['text']['font']} 10", text_color="#00aa96", command=print,
     fg_color=ThemeManager.theme['color']['frame_low'], hover_color=ThemeManager.theme['color']['frame_low'], border_width=0,
-    anchor=tk.N, relx=0.625, rely=0.89, relwidth=0.14, relheight=0.1))
+    relx=0.65, rely=0, relwidth=0.35, relheight=1))
+_sub_frame.addChild(login_button)
 
 _frame.addChild([
-    username_entry, password_entry, confirm_entry, create_button, login_button
+    _sub_frame,
+    username_entry, password_entry, confirm_entry, create_button
 ])
 window.addChild(_frame)
 

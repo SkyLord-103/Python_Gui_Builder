@@ -2,9 +2,6 @@ from typing import Optional
 from property_parser import WidgetParser, ObjParser
 import customtkinter as ct
 from uuid import uuid4
-from rich.console import Console
-
-console = Console()
 
 
 class Widget:
@@ -31,10 +28,21 @@ class Widget:
         Returns:
             Widget: An object to ease gui creation
         """
+        self._name = ctkObject
         self.name = name or str(uuid4())
         self.ctkObject = ObjParser(ctkObject)
 
         self.afterCreate = properties.creation.pop("afterCreate", None)
+        # properties.creation["anchor"] = properties.creation.pop(
+        #     "justify", 'center')
+        self._justify_f = properties.creation.pop("justify", 'c')
+        self._justify_positions = {
+            'n': (ct.N, 0.5, 0),
+            's': (ct.S, 0.5, 1),
+            'w': (ct.W, 0, 0.5),
+            'e': (ct.E, 1, 0.5),
+            'c': (ct.CENTER, 0.5, 0.5)
+        }
         self._props = properties
 
         self.element = None  # CTkObject
@@ -56,19 +64,15 @@ class Widget:
         if self.element:
             self.element.place_configure(*args, **kwargs)
 
-    def setparent(self, _widget: any):
-        """Set the parent of the widget
+    def _justify(self):
+        """Internal function, Sets the text_label to the given side"""
+        if not self.element:
+            return
 
-        Args:
-            _widget (Widget, Window, CTkObject): The widget, window or customtkinter widget.
-        """
-        if isinstance(_widget, Widget):
-            if _widget.element:
-                self._props.creation["master"] = _widget.element
-        elif _widget.__class__.__name__ == "Window":
-            self._props.creation["master"] = _widget.window
-        else:
-            self._props.creation["master"] = _widget
+        just = self._justify_positions[self._justify_f]
+        print("Justing:", self.element.text_label, self.name)
+        self.element.text_label.place(
+            anchor=just[0], relx=just[1], rely=just[2], x=0, y=0)
 
     def child(self, name: str) -> any:
         """Returns the child if exists"""
@@ -98,6 +102,9 @@ class Widget:
         self.element = self.ctkObject(**self._props.creation)
         self.element.place_configure(**self._props.place)
 
+        if self.ctkObject.__name__ in ("CTkLabel", "CTkButton"):
+            self._justify()
+
         if self.afterCreate is not None:
             self.afterCreate(self, self.element)
 
@@ -115,34 +122,16 @@ class Widget:
 
 
 if __name__ == "__main__":
-    w = ct.CTk()
-    button = None
+    window = ct.CTk()
+    print("__main__")
+    _frame = Widget('CTkFrame', properties=Widget.parse(
+        relx=0.05, rely=0.05, relwidth=0.9, relheight=0.9
+    ))
 
-    def cl():
-        w = button.child('addChild')
-    button = Widget(ct.CTkButton, "MainButton",
-                    Widget.parse(
-                        master=w, text="string", relx=0.1,
-                        rely=0.1, relwidth=0.8, relheight=0.8, command=cl
-                    ), children=[
-                        Widget(ct.CTkButton, "child1",
-                               Widget.parse(
-                                   master=w, fg_color="#55aa94", text="CLICK",
-                                   relx=0.3, rely=0.3, relwidth=0.3, relheight=0.4
-                               ), children=[
-                                   Widget(ct.CTkButton, "child2",
-                                          Widget.parse(
-                                              master=w, fg_color="#eab7ff", text="CLICK",
-                                              relx=0.3, rely=0.3, relwidth=0.3, relheight=0.4
-                                          ))
-                               ])
-                    ])
-    button.addChild(Widget(ct.CTkButton, name="addChild",
-                           properties=Widget.parse(
-                                              master=w, fg_color="#eab7ff", text="CLICK",
-                                              relx=0.3, rely=0.3, relwidth=0.3, relheight=0.4
-                           )))
-    button.mount()
+    helloButton = Widget('CTkButton', properties=Widget.parse(
+        relx=0.05, rely=0.05, relwidth=0.9, relheight=0.9, text="Hello"
+    ))
 
-    console.print(button)
-    w.mainloop()
+    _frame.addChild()
+    _frame.mount()
+    window.mainloop()
