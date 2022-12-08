@@ -1,8 +1,4 @@
-
-from typing import Optional
-
 from ..parser import ObjParser
-import customtkinter as ct
 from uuid import uuid4
 
 
@@ -16,14 +12,6 @@ class WidgetBase:
 
         self.afterCreate = properties.ctk.pop("afterCreate", None)
 
-        self._justify_f = properties.ctk.pop("justify", 'c')
-        self._justify_positions = {
-            'n': (ct.N, 0.5, 0),
-            's': (ct.S, 0.5, 1),
-            'w': (ct.W, 0, 0.5),
-            'e': (ct.E, 1, 0.5),
-            'c': (ct.CENTER, 0.5, 0.5)
-        }
         self._props = properties
 
         self.element = None  # CTkObject
@@ -40,15 +28,6 @@ class WidgetBase:
     def place_configure(self, *args, **kwargs):
         if self.element:
             self.element.place_configure(*args, **kwargs)
-
-    def _justify(self):
-        """Internal function, Sets the text_label to the given side"""
-        if not self.element:
-            return
-
-        just = self._justify_positions[self._justify_f]
-        self.element.text_label.place(
-            anchor=just[0], relx=just[1], rely=just[2], x=0, y=0)
 
     def setparent(self, _widget: any):
         """Set the parent of the widget
